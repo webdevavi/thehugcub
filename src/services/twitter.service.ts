@@ -199,7 +199,7 @@ export class TwitterService {
 
       await this.client.tweets.statusesUpdate({
         in_reply_to_status_id: tweetId,
-        status: `@${users.join(" ")} ${mentions.join(", ")}! ${insult}`,
+        status: `@${users.join(" @")} ${mentions.join(", ")}! ${insult}`,
       })
     } catch (err) {
       console.error(err)
