@@ -12,7 +12,7 @@ twitterWebhookRouter.post("/", async (req, res) => {
 
       await twitter.replyWithRoast(
         body.tweet_create_events[0].id_str,
-        body.tweet_create_events[0].entities.user_mentions?.filter(({ id_str }: { id_str: string }) => id_str !== "1443918489987600385").map(({ screen_name }: { screen_name: string }) => screen_name),
+        [body.tweet_create_events[0].user.screen_name, ...(body.tweet_create_events[0].entities.user_mentions?.filter(({ id_str }: { id_str: string }) => id_str !== "1443918489987600385").map(({ screen_name }: { screen_name: string }) => screen_name) ?? [])],
         body.tweet_create_events[0].entities.user_mentions?.filter(({ id_str }: { id_str: string }) => id_str !== "1443918489987600385").map(({ name }: { name: string }) => name.split(" ")[0])
       )
     }
