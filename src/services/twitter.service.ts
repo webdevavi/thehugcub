@@ -189,16 +189,20 @@ export class TwitterService {
     return `sha256=${hmac}`
   }
 
-  async replyWithRoast(tweetId: string, mentions: string[]) {
+  async replyWithRoast(tweetId: string, user: string, mentions: string[]) {
     if (mentions.length < 1) return
 
-    const {
-      data: { insult },
-    } = await axios.get(INSULT_API_ENDPOINT)
+    try {
+      const {
+        data: { insult },
+      } = await axios.get(INSULT_API_ENDPOINT)
 
-    await this.client.tweets.statusesUpdate({
-      in_reply_to_status_id: tweetId,
-      status: `${mentions.join(", ")}! ${insult}`,
-    })
+      await this.client.tweets.statusesUpdate({
+        in_reply_to_status_id: tweetId,
+        status: `@${user} ${mentions.join(", ")}! ${insult}`,
+      })
+    } catch (err) {
+      console.error(err)
+    }
   }
 }
