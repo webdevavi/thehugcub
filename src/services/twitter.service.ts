@@ -189,8 +189,8 @@ export class TwitterService {
     return `sha256=${hmac}`
   }
 
-  async replyWithRoast(tweetId: string, users: string[], mentions: string[]) {
-    if (mentions.length < 1) return
+  async replyWithRoast(tweetId: string, users: string[], mention: string) {
+    if (!mention) return
 
     try {
       const {
@@ -199,7 +199,7 @@ export class TwitterService {
 
       await this.client.tweets.statusesUpdate({
         in_reply_to_status_id: tweetId,
-        status: `@${users.join(" @")} ${mentions.join(", ")}! ${insult}`,
+        status: `@${users.join(" @")} ${mention}! ${insult}`,
       })
     } catch (err) {
       console.error(err)
