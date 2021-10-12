@@ -52,12 +52,12 @@ twitterWebhookRouter.post("/", async (req, res) => {
 
           const songUrl = entities.urls?.find(({ url }: { url: string }) => songTemplate.includes(url))?.url
 
-          message = `${template}\n\n💌 - "${message.trim()}"\n\nSpecial song for you - ${songUrl}`
+          message = message ? `${template}\n\n💌 - "${message.trim()}"\n\nSpecial song for you - ${songUrl}` : `${template}\n\nSpecial song for you - ${songUrl}`
         } else {
           entities.urls?.forEach(({ url }: { url: string }) => {
             message = message.replace(url, "")
           })
-          message = `${template}\n\n💌 - "${message.trim()}"`
+          message = message ? `${template}\n\n💌 - "${message.trim()}"` : template
         }
 
         const media_id = await getMediaId(attachment, sender_id)
