@@ -42,6 +42,24 @@ export const getMediaId = async (attachment: any, sender_id: string): Promise<st
 
     await client.media.mediaUploadFinalize({ command: "FINALIZE", media_id: media_id_string })
 
+    await new Promise((res, rej) => {
+      setInterval(async () => {
+        try {
+          const {
+            processing_info: { state },
+          } = await client.media.mediaUploadStatus({ media_id: media_id_string, command: "STATUS" })
+
+          if (state === "succeeded") {
+            res(true)
+          } else {
+            console.log("waiting")
+          }
+        } catch (err) {
+          rej(err)
+        }
+      }, 2000)
+    })
+
     unlinkSync(path)
 
     return media_id_string
