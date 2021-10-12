@@ -47,7 +47,7 @@ export class TwitterService {
   })
 
   private async getAllWebhooks() {
-    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/prod/webhooks.json`
+    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/production/webhooks.json`
 
     console.log("Checking for existing webhooks")
 
@@ -71,7 +71,7 @@ export class TwitterService {
   }
 
   private async getAllSubscriptions() {
-    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/prod/subscriptions/list.json`
+    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/production/subscriptions/list.json`
 
     console.log("Checking for existing subscriptions.")
 
@@ -99,7 +99,7 @@ export class TwitterService {
       return
     }
 
-    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/prod/webhooks/${this.webhooks[0]!.id}.json`
+    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/production/webhooks/${this.webhooks[0]!.id}.json`
 
     console.log("Triggering Twitter CRC")
 
@@ -113,7 +113,7 @@ export class TwitterService {
   }
 
   private async registerWebhook() {
-    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/prod/webhooks.json`
+    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/production/webhooks.json`
 
     console.log(`Creating a POST request to ${url} for webhook registration of webhook url ${TWITTER_WEBHOOK_ENDPOINT}`)
 
@@ -137,7 +137,7 @@ export class TwitterService {
   }
 
   private async removeWebhook(webhookId: string) {
-    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/prod/webhooks/${webhookId}.json`
+    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/production/webhooks/${webhookId}.json`
 
     console.warn(`Removing the webhook ${webhookId}`)
 
@@ -159,7 +159,7 @@ export class TwitterService {
       return
     }
 
-    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/prod/subscriptions.json`
+    const url = `${TWITTER_API_ENDPOINT}/account_activity/all/production/subscriptions.json`
 
     console.log(`Creating a POST request to ${url} for subscriptions registration.`)
 
