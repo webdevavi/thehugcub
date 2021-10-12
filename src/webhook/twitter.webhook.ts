@@ -1,4 +1,5 @@
 import { Router } from "express"
+import { decode } from "html-entities"
 import { client } from "../client"
 import { hugTemplateRegex, songTemplateRegex } from "../regex"
 import { TwitterService } from "../services"
@@ -52,12 +53,12 @@ twitterWebhookRouter.post("/", async (req, res) => {
 
           const songUrl = entities.urls?.find(({ url }: { url: string }) => songTemplate.includes(url))?.url
 
-          message = message.trim() ? `${template}\n\n💌 - "${message.trim()}"\n\nSpecial song for you - ${songUrl}` : `${template}\n\nSpecial song for you - ${songUrl}`
+          message = message.trim() ? `${template}\n\n💌 - "${decode(message, { level: "html5" }).trim()}"\n\nSpecial song for you - ${songUrl}` : `${template}\n\nSpecial song for you - ${songUrl}`
         } else {
           entities.urls?.forEach(({ url }: { url: string }) => {
             message = message.replace(url, "")
           })
-          message = message.trim() ? `${template}\n\n💌 - "${message.trim()}"` : template
+          message = message.trim() ? `${template}\n\n💌 - "${decode(message, { level: "html5" }).trim()}"` : template
         }
 
         const media_id = await getMediaId(attachment, sender_id)
