@@ -2,8 +2,10 @@ import axios from "axios"
 import axiosRateLimit from "axios-rate-limit"
 import { createHmac } from "crypto"
 import qs from "qs"
-import { TwitterClient } from "twitter-api-client"
-import { INSULT_API_ENDPOINT, TWITTER_ACCESS_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_API_ENDPOINT, TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_WEBHOOK_ENDPOINT } from "../constants"
+import { StatusesUpdateParams, TwitterClient } from "twitter-api-client"
+import { client } from "../client"
+import { TWITTER_API_ENDPOINT, TWITTER_API_SECRET, TWITTER_WEBHOOK_ENDPOINT } from "../constants"
+import { MessageModel } from "../entities"
 import { SubscriptionType, WebhookType } from "../types"
 import { OAuthService } from "./oauth.service"
 
@@ -14,12 +16,7 @@ export class TwitterService {
 
   constructor() {
     this.oAuthService = new OAuthService()
-    this.client = new TwitterClient({
-      apiKey: TWITTER_API_KEY,
-      apiSecret: TWITTER_API_SECRET,
-      accessToken: TWITTER_ACCESS_TOKEN,
-      accessTokenSecret: TWITTER_ACCESS_SECRET,
-    })
+    this.client = client
   }
 
   webhooks: Array<WebhookType> = []
@@ -189,18 +186,17 @@ export class TwitterService {
     return `sha256=${hmac}`
   }
 
-  async replyWithRoast(tweetId: string, users: string[], mention: string) {
-    if (!mention) return
-
+  async createHugTweet({ text, media_id, sender_id, receiver_id }: { text: string; media_id?: string | null; sender_id: string; receiver_id: string }) {
     try {
-      const {
-        data: { insult },
-      } = await axios.get(INSULT_API_ENDPOINT)
+      const params: StatusesUpdateParams = { status: text }
 
-      await this.client.tweets.statusesUpdate({
-        in_reply_to_status_id: tweetId,
-        status: `@${users.join(" @")} ${mention}! ${insult}`,
-      })
+      if (media_id) {
+        params.media_ids = media_id
+      }
+
+      await this.client.tweets.statusesUpdate(params)
+
+      await MessageModel.create({ text, media_id, is_anonymous: true, sender_id, receiver_id })
     } catch (err) {
       console.error(err)
     }
