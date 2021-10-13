@@ -3,6 +3,7 @@ import axiosRateLimit from "axios-rate-limit"
 import { createHmac } from "crypto"
 import qs from "qs"
 import { StatusesUpdateParams, TwitterClient } from "twitter-api-client"
+import twitter from "twitter-text"
 import { client } from "../client"
 import { TWITTER_API_ENDPOINT, TWITTER_API_SECRET, TWITTER_WEBHOOK_ENDPOINT } from "../constants"
 import { MessageModel } from "../entities"
@@ -188,17 +189,66 @@ export class TwitterService {
 
   async createHugTweet({ text, media_id, sender_id, receiver_id }: { text: string; media_id?: string | null; sender_id: string; receiver_id: string }) {
     try {
-      const params: StatusesUpdateParams = { status: text }
+      const splits = this.getTweetSplits(text)
 
-      if (media_id) {
-        params.media_ids = media_id
+      if (splits.length === 1) {
+        const params: StatusesUpdateParams = { status: splits[0]! }
+
+        if (media_id) {
+          params.media_ids = media_id
+        }
+
+        await this.client.tweets.statusesUpdate(params)
+
+        await MessageModel.create({ text, media_id, is_anonymous: true, sender_id, receiver_id })
+      } else {
+        const params: StatusesUpdateParams = { status: splits[0]! }
+
+        if (media_id) {
+          params.media_ids = media_id
+        }
+
+        const { id_str } = await this.client.tweets.statusesUpdate(params)
+
+        await MessageModel.create({ text, media_id, is_anonymous: true, sender_id, receiver_id })
+
+        await this.makeThread(id_str, splits.slice(1))
       }
-
-      await this.client.tweets.statusesUpdate(params)
-
-      await MessageModel.create({ text, media_id, is_anonymous: true, sender_id, receiver_id })
     } catch (err) {
       console.error(err)
     }
+  }
+
+  private async makeThread(parentTweetId: string, tweetSplits: Array<string>) {
+    let inReplyToTweetId = parentTweetId
+
+    for (const split in tweetSplits) {
+      const params: StatusesUpdateParams = {
+        status: tweetSplits[split]!,
+        in_reply_to_status_id: inReplyToTweetId,
+        auto_populate_reply_metadata: true,
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      const { id_str } = await this.client.tweets.statusesUpdate(params)
+
+      inReplyToTweetId = id_str
+    }
+  }
+
+  private getTweetSplits(text: string): Array<string> {
+    const splits: Array<string> = []
+    const { length: _length } = text
+
+    while (splits.join("").length !== _length) {
+      const { validRangeStart, validRangeEnd } = twitter.parseTweet(text)
+
+      splits.push(text.substring(validRangeStart, validRangeEnd + 1))
+
+      // eslint-disable-next-line no-param-reassign
+      text = text.substring(validRangeEnd + 1)
+    }
+
+    return splits
   }
 }

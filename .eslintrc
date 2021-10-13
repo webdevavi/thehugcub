@@ -17,6 +17,8 @@
     "no-console": "off",
     "camelcase": "off",
     "no-underscore-dangle": "off",
-    "class-methods-use-this": "off"
+    "class-methods-use-this": "off",
+    "no-restricted-syntax": "off",
+    "guard-for-in": "off"
   }
 }

@@ -53,7 +53,7 @@ twitterWebhookRouter.post("/", async (req, res) => {
 
           const songUrl = entities.urls?.find(({ url }: { url: string }) => songTemplate.includes(url))?.url
 
-          message = message.trim() ? `${template}\n\n💌 - "${decode(message, { level: "html5" }).trim()}"\n\nSpecial song for you - ${songUrl}` : `${template}\n\nSpecial song for you - ${songUrl}`
+          message = message.trim() ? `${template}\n\nSpecial song for you - ${songUrl}\n\n💌 - "${decode(message, { level: "html5" }).trim()}"` : `${template}\n\nSpecial song for you - ${songUrl}`
         } else {
           entities.urls?.forEach(({ url }: { url: string }) => {
             message = message.replace(url, "")
