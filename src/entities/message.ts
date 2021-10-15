@@ -6,6 +6,8 @@ export interface IMessage {
   is_anonymous: boolean
   text: string
   media_id?: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export class Message implements IMessage {
@@ -18,6 +20,10 @@ export class Message implements IMessage {
   text!: string
 
   media_id?: string
+
+  createdAt!: Date
+
+  updatedAt!: Date
 }
 
 export const MessageSchema = new Schema(
